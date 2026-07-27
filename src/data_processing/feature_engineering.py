@@ -1,8 +1,14 @@
 import pandas as pd
 from pathlib import Path
 
+import sys
 
-DATA = Path("../../data/processed")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from helper import PROCESSED_DATA_DIR
+
+
+DATA = PROCESSED_DATA_DIR
 
 
 def create_features():

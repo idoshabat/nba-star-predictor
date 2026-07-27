@@ -2,8 +2,8 @@ from pathlib import Path
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+
+from sklearn.ensemble import RandomForestClassifier
 
 from sklearn.metrics import (
     accuracy_score,
@@ -29,32 +29,37 @@ def train():
     print(df.shape)
 
 
+    # Same features as Logistic Regression
 
-    # Features we keep
-
+    # features = [
+    #     "age",
+    #     "gp",
+    #     "ppg",
+    #     "rpg",
+    #     "apg",
+    #     "mpg",
+    #     "starter_rate",
+    #     "efficiency",
+    #     "pts_per_min",
+    #     # "impact_score",
+    #     "fg_pct",
+    #     "fg3_pct",
+    #     "ft_pct"
+    # ]
     features = [
-        "age",
-        "gp",
-
-        # per game stats
-        "ppg",
-        "rpg",
-        "apg",
-
-        # role
-        "mpg",
-        "starter_rate",
-
-        # efficiency
-        "efficiency",
-        "pts_per_min",
-        "impact_score",
-
-        # shooting
-        "fg_pct",
-        "fg3_pct",
-        "ft_pct"
-    ]
+    "age",
+    "gp",
+    "pts",
+    "reb",
+    "ast",
+    "stl",
+    "blk",
+    "min",
+    "fg_pct",
+    "fg3_pct",
+    "ft_pct",
+    "gs"
+]
 
 
     X = df[features]
@@ -64,8 +69,7 @@ def train():
     y = df["is_all_star"]
 
 
-
-    print("Features:")
+    print("\nFeatures:")
     print(X.columns)
 
 
@@ -89,48 +93,48 @@ def train():
 
 
 
-    # Scaling
+    model = RandomForestClassifier(
 
-    scaler = StandardScaler()
+        n_estimators=300,
 
-
-    X_train_scaled = scaler.fit_transform(
-        X_train
-    )
-
-
-    X_test_scaled = scaler.transform(
-        X_test
-    )
-
-
-
-    model = LogisticRegression(
+        # handle imbalance
         class_weight="balanced",
-        max_iter=1000
+
+        random_state=42,
+
+        # avoid overfitting
+        max_depth=8,
+
+        min_samples_split=10,
+
+        min_samples_leaf=5,
+
+        n_jobs=-1
     )
+
 
 
     model.fit(
-        X_train_scaled,
+        X_train,
         y_train
     )
 
 
 
     predictions = model.predict(
-        X_test_scaled
+        X_test
     )
 
 
     probabilities = model.predict_proba(
-        X_test_scaled
+        X_test
     )[:,1]
 
 
 
     print("\nMetrics")
     print("----------------")
+
 
     print(
         "Accuracy:",
@@ -177,6 +181,7 @@ def train():
     )
 
 
+
     print("\nConfusion Matrix")
 
     print(
@@ -194,27 +199,21 @@ def train():
 
         "feature": features,
 
-        "coefficient": model.coef_[0]
+        "importance": model.feature_importances_
 
     })
 
 
-    importance["abs"] = (
-        importance["coefficient"]
-        .abs()
+    importance = importance.sort_values(
+        "importance",
+        ascending=False
     )
 
 
     print("\nFeature Importance")
     print("------------------")
 
-
-    print(
-        importance.sort_values(
-            "abs",
-            ascending=False
-        )
-    )
+    print(importance)
 
 
 

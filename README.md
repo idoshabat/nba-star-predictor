@@ -47,3 +47,74 @@ player, season, age, ppg, rpg, apg, minutes, fg_pct, three_pct, ft_pct, allstar
 ```
 
 Then train a baseline model and improve from there.
+
+## Reproducible Pipeline
+
+Run the main project steps from the repository root:
+
+```bash
+source venv/bin/activate
+python src/data_processing/build_ml_dataset.py
+python src/data_processing/feature_engineering.py
+python models/evaluate_models.py
+python models/train_final_model.py
+```
+
+The model comparison report is saved to:
+
+```text
+reports/model_comparison.csv
+reports/figures/model_f1_comparison.png
+reports/figures/xgboost_confusion_matrix.png
+```
+
+The final trained model artifacts are saved to:
+
+```text
+artifacts/xgboost_model.pkl
+artifacts/model_config.json
+artifacts/final_model_metrics.json
+```
+
+The current evaluation uses players with at least 20 rookie-season games and
+compares Logistic Regression, Random Forest, and XGBoost with the same train/test
+split and feature set.
+
+## API
+
+Start the FastAPI backend from the repository root:
+
+```bash
+source venv/bin/activate
+uvicorn backend.main:app --reload
+```
+
+Health check:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+Prediction example:
+
+```bash
+curl -X POST http://127.0.0.1:8000/predict \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "age": 19,
+    "gp": 79,
+    "pts": 1654,
+    "reb": 432,
+    "ast": 465,
+    "stl": 130,
+    "blk": 58,
+    "min": 3122,
+    "fg_pct": 0.417,
+    "fg3_pct": 0.29,
+    "ft_pct": 0.754
+  }'
+```
+
+The API computes the engineered features required by the model and returns the
+All-Star probability, prediction label, threshold, and simple explanatory
+signals.
