@@ -101,6 +101,30 @@ Demo players:
 curl http://127.0.0.1:8000/examples
 ```
 
+Search active NBA players:
+
+```bash
+curl 'http://127.0.0.1:8000/players/search?query=wemb&limit=5'
+```
+
+Predict from a searched player's rookie season:
+
+```bash
+curl 'http://127.0.0.1:8000/players/1641705/prediction?season_mode=rookie'
+```
+
+Compare with a searched player's latest available NBA season:
+
+```bash
+curl 'http://127.0.0.1:8000/players/1641705/prediction?season_mode=latest'
+```
+
+Rank the top rookie-season profiles from the 2025-26 NBA season:
+
+```bash
+curl 'http://127.0.0.1:8000/rookies/rankings?season=2025-26&limit=5&min_games=20'
+```
+
 Prediction example:
 
 ```bash
@@ -145,5 +169,7 @@ Then open:
 http://127.0.0.1:5173
 ```
 
-The dashboard loads demo players from `/examples`, lets you edit rookie-season
-stats, and sends predictions to the FastAPI `/predict` endpoint.
+The dashboard loads demo players from `/examples`, lets you search active NBA
+players, switch between rookie and latest-season stats, rank the top rookie
+profiles from the 2025-26 season, edit the loaded stats, and sends predictions
+to the FastAPI `/predict` endpoint.

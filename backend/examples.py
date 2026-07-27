@@ -3,6 +3,7 @@ from backend.schemas import PlayerExample, PlayerStats
 
 EXAMPLES = [
     PlayerExample(
+        player_id=2544,
         name="LeBron James",
         actual_all_star=True,
         stats=PlayerStats(
@@ -20,6 +21,7 @@ EXAMPLES = [
         ),
     ),
     PlayerExample(
+        player_id=201939,
         name="Stephen Curry",
         actual_all_star=True,
         stats=PlayerStats(
@@ -37,6 +39,7 @@ EXAMPLES = [
         ),
     ),
     PlayerExample(
+        player_id=203507,
         name="Giannis Antetokounmpo",
         actual_all_star=True,
         stats=PlayerStats(
@@ -54,6 +57,7 @@ EXAMPLES = [
         ),
     ),
     PlayerExample(
+        player_id=1630162,
         name="Anthony Edwards",
         actual_all_star=True,
         stats=PlayerStats(
@@ -71,6 +75,7 @@ EXAMPLES = [
         ),
     ),
     PlayerExample(
+        player_id=97,
         name="Ronnie Grandison",
         actual_all_star=False,
         stats=PlayerStats(
