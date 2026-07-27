@@ -9,15 +9,10 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from helper import ARTIFACTS_DIR
+from features import build_prediction_features
 
 
 CONFIG_PATH = ARTIFACTS_DIR / "model_config.json"
-
-
-def safe_divide(numerator: float, denominator: float) -> float:
-    if denominator == 0:
-        return 0.0
-    return numerator / denominator
 
 
 class AllStarPredictor:
@@ -32,21 +27,7 @@ class AllStarPredictor:
         return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
 
     def build_features(self, payload: dict) -> dict:
-        features = dict(payload)
-        features["pts_per_min"] = safe_divide(features["pts"], features["min"])
-        features["efficiency"] = safe_divide(
-            features["pts"]
-            + features["reb"]
-            + features["ast"]
-            + features["stl"]
-            + features["blk"],
-            features["min"],
-        )
-
-        return {
-            feature: float(features[feature])
-            for feature in self.feature_columns
-        }
+        return build_prediction_features(payload, self.feature_columns)
 
     def predict(self, payload: dict) -> dict:
         features = self.build_features(payload)

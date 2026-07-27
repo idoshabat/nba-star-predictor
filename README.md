@@ -95,6 +95,12 @@ Health check:
 curl http://127.0.0.1:8000/health
 ```
 
+Demo players:
+
+```bash
+curl http://127.0.0.1:8000/examples
+```
+
 Prediction example:
 
 ```bash
@@ -118,3 +124,26 @@ curl -X POST http://127.0.0.1:8000/predict \
 The API computes the engineered features required by the model and returns the
 All-Star probability, prediction label, threshold, and simple explanatory
 signals.
+
+Training and serving share the same feature engineering code in `src/features.py`
+so the model receives features consistently in both offline evaluation and API
+predictions.
+
+## Frontend
+
+Start the React dashboard in a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open:
+
+```text
+http://127.0.0.1:5173
+```
+
+The dashboard loads demo players from `/examples`, lets you edit rookie-season
+stats, and sends predictions to the FastAPI `/predict` endpoint.

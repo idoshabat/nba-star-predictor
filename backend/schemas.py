@@ -22,3 +22,9 @@ class PredictionResponse(BaseModel):
     model_name: str
     signals: list[str]
     features_used: dict[str, float]
+
+
+class PlayerExample(BaseModel):
+    name: str
+    stats: PlayerStats
+    actual_all_star: bool
