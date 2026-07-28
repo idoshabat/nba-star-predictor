@@ -11,6 +11,7 @@ from backend.predictor import AllStarPredictor
 
 SeasonMode = Literal["rookie", "latest"]
 ROOKIE_STATS_CACHE_PATH = Path(__file__).with_name("rookie_stats_cache.json")
+LATEST_STATS_CACHE_PATH = Path(__file__).with_name("latest_stats_cache.json")
 
 
 @lru_cache(maxsize=1)
@@ -43,6 +44,14 @@ def rookie_stats_cache() -> dict[str, dict]:
     return json.loads(ROOKIE_STATS_CACHE_PATH.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=1)
+def latest_stats_cache() -> dict[str, dict]:
+    if not LATEST_STATS_CACHE_PATH.exists():
+        return {}
+
+    return json.loads(LATEST_STATS_CACHE_PATH.read_text(encoding="utf-8"))
+
+
 def search_active_players(query: str, limit: int = 10) -> list[dict]:
     normalized_query = query.strip().lower()
 
@@ -61,9 +70,13 @@ def search_active_players(query: str, limit: int = 10) -> list[dict]:
 @lru_cache(maxsize=2048)
 def player_season_stats(player_id: int, season_mode: SeasonMode = "rookie") -> dict:
     cached_rookie_season = rookie_stats_cache().get(str(player_id))
+    cached_latest_season = latest_stats_cache().get(str(player_id))
 
     if season_mode == "rookie" and cached_rookie_season:
         return cached_rookie_season
+
+    if season_mode == "latest" and cached_latest_season:
+        return cached_latest_season
 
     try:
         career = playercareerstats.PlayerCareerStats(player_id=player_id, timeout=10)
