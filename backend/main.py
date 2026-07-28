@@ -27,6 +27,7 @@ frontend_origin = os.getenv("FRONTEND_ORIGIN")
 allowed_origins = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
+    "https://nba-star-predictor.vercel.app/",
 ]
 
 if frontend_origin:
