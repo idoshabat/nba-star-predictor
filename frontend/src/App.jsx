@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import './App.css'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'https://nba-star-predictor-api.onrender.com'
 const NBA_LOGO_URL = 'https://cdn.nba.com/logos/leagues/logo-nba.svg'
 const ROOKIE_RANKING_SEASON = '2025-26'
 
