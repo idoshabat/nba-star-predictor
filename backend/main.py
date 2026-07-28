@@ -23,15 +23,18 @@ app = FastAPI(
     version="0.1.0",
 )
 
-frontend_origin = os.getenv("FRONTEND_ORIGIN")
 allowed_origins = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
-    "https://nba-star-predictor.vercel.app/",
+    "https://nba-star-predictor.vercel.app",
 ]
 
-if frontend_origin:
-    allowed_origins.append(frontend_origin)
+frontend_origins = os.getenv("FRONTEND_ORIGIN", "")
+allowed_origins.extend(
+    origin.strip().rstrip("/")
+    for origin in frontend_origins.split(",")
+    if origin.strip()
+)
 
 app.add_middleware(
     CORSMiddleware,
