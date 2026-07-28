@@ -188,7 +188,13 @@ environment variable wherever the backend is hosted:
 
 ```text
 FRONTEND_ORIGIN=https://your-vercel-app.vercel.app
+ENABLE_LIVE_NBA_AWARDS=false
 ```
 
 Without `VITE_API_BASE_URL`, the frontend falls back to `http://127.0.0.1:8000`,
 which only works on your machine during local development.
+
+Production player predictions use the local rookie-stat cache first because
+`stats.nba.com` can be slow or block cloud-hosted requests. Set
+`ENABLE_LIVE_NBA_AWARDS=true` only if you want the backend to call NBA awards
+live for uncached players.

@@ -1,5 +1,6 @@
 import csv
 import json
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from nba_api.stats.endpoints import playerawards
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 LABELS_PATH = PROJECT_ROOT / "data" / "processed" / "nba_allstar_prediction.csv"
 AWARDS_CACHE_PATH = Path(__file__).with_name("all_star_awards_cache.json")
+ENABLE_LIVE_NBA_AWARDS = os.getenv("ENABLE_LIVE_NBA_AWARDS", "").lower() == "true"
 
 
 @lru_cache(maxsize=1)
@@ -61,6 +63,9 @@ def all_star_seasons_for_player(player_id: int) -> tuple[str, ...]:
 
     if cached_seasons is not None:
         return tuple(cached_seasons)
+
+    if not ENABLE_LIVE_NBA_AWARDS:
+        return ()
 
     try:
         awards = playerawards.PlayerAwards(player_id=player_id, timeout=10).get_data_frames()[0]

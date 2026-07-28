@@ -58,24 +58,20 @@ def search_active_players(query: str, limit: int = 10) -> list[dict]:
     return matches[:limit]
 
 
+@lru_cache(maxsize=2048)
 def player_season_stats(player_id: int, season_mode: SeasonMode = "rookie") -> dict:
+    cached_rookie_season = rookie_stats_cache().get(str(player_id))
+
+    if season_mode == "rookie" and cached_rookie_season:
+        return cached_rookie_season
+
     try:
         career = playercareerstats.PlayerCareerStats(player_id=player_id, timeout=10)
         df = career.get_data_frames()[0]
     except Exception:
-        cached_rookie_season = rookie_stats_cache().get(str(player_id))
-
-        if season_mode == "rookie" and cached_rookie_season:
-            return cached_rookie_season
-
         raise
 
     if df.empty:
-        cached_rookie_season = rookie_stats_cache().get(str(player_id))
-
-        if season_mode == "rookie" and cached_rookie_season:
-            return cached_rookie_season
-
         raise ValueError(f"No career stats found for player_id={player_id}")
 
     if season_mode == "rookie":
