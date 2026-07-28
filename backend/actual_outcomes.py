@@ -1,4 +1,5 @@
 import csv
+import json
 from functools import lru_cache
 from pathlib import Path
 
@@ -7,6 +8,7 @@ from nba_api.stats.endpoints import playerawards
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 LABELS_PATH = PROJECT_ROOT / "data" / "processed" / "nba_allstar_prediction.csv"
+AWARDS_CACHE_PATH = Path(__file__).with_name("all_star_awards_cache.json")
 
 
 @lru_cache(maxsize=1)
@@ -31,6 +33,14 @@ def all_star_outcomes() -> dict[int, bool]:
     return outcomes
 
 
+@lru_cache(maxsize=1)
+def all_star_awards_cache() -> dict[str, list[str]]:
+    if not AWARDS_CACHE_PATH.exists():
+        return {}
+
+    return json.loads(AWARDS_CACHE_PATH.read_text(encoding="utf-8"))
+
+
 def actual_all_star_for_player(player_id: int) -> bool | None:
     seasons = all_star_seasons_for_player(player_id)
 
@@ -47,6 +57,11 @@ def actual_all_star_for_player(player_id: int) -> bool | None:
 
 @lru_cache(maxsize=2048)
 def all_star_seasons_for_player(player_id: int) -> tuple[str, ...]:
+    cached_seasons = all_star_awards_cache().get(str(player_id))
+
+    if cached_seasons is not None:
+        return tuple(cached_seasons)
+
     try:
         awards = playerawards.PlayerAwards(player_id=player_id, timeout=10).get_data_frames()[0]
     except Exception:

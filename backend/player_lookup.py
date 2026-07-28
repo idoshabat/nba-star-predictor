@@ -1,4 +1,6 @@
 from functools import lru_cache
+import json
+from pathlib import Path
 from typing import Literal
 
 from nba_api.stats.endpoints import playercareerstats
@@ -8,6 +10,7 @@ from backend.actual_outcomes import actual_all_star_for_player, all_star_seasons
 from backend.predictor import AllStarPredictor
 
 SeasonMode = Literal["rookie", "latest"]
+ROOKIE_STATS_CACHE_PATH = Path(__file__).with_name("rookie_stats_cache.json")
 
 
 @lru_cache(maxsize=1)
@@ -32,6 +35,14 @@ def all_players() -> list[dict]:
     ]
 
 
+@lru_cache(maxsize=1)
+def rookie_stats_cache() -> dict[str, dict]:
+    if not ROOKIE_STATS_CACHE_PATH.exists():
+        return {}
+
+    return json.loads(ROOKIE_STATS_CACHE_PATH.read_text(encoding="utf-8"))
+
+
 def search_active_players(query: str, limit: int = 10) -> list[dict]:
     normalized_query = query.strip().lower()
 
@@ -48,10 +59,23 @@ def search_active_players(query: str, limit: int = 10) -> list[dict]:
 
 
 def player_season_stats(player_id: int, season_mode: SeasonMode = "rookie") -> dict:
-    career = playercareerstats.PlayerCareerStats(player_id=player_id, timeout=10)
-    df = career.get_data_frames()[0]
+    try:
+        career = playercareerstats.PlayerCareerStats(player_id=player_id, timeout=10)
+        df = career.get_data_frames()[0]
+    except Exception:
+        cached_rookie_season = rookie_stats_cache().get(str(player_id))
+
+        if season_mode == "rookie" and cached_rookie_season:
+            return cached_rookie_season
+
+        raise
 
     if df.empty:
+        cached_rookie_season = rookie_stats_cache().get(str(player_id))
+
+        if season_mode == "rookie" and cached_rookie_season:
+            return cached_rookie_season
+
         raise ValueError(f"No career stats found for player_id={player_id}")
 
     if season_mode == "rookie":
