@@ -173,3 +173,22 @@ The dashboard loads demo players from `/examples`, lets you search active NBA
 players, switch between rookie and latest-season stats, rank the top rookie
 profiles from the 2025-26 season, edit the loaded stats, and sends predictions
 to the FastAPI `/predict` endpoint.
+
+## Deployment notes
+
+The Vercel frontend needs the deployed FastAPI URL at build time. Add this
+environment variable in the Vercel project settings:
+
+```text
+VITE_API_BASE_URL=https://your-backend-url.com
+```
+
+The FastAPI backend also needs to allow the deployed frontend origin. Add this
+environment variable wherever the backend is hosted:
+
+```text
+FRONTEND_ORIGIN=https://your-vercel-app.vercel.app
+```
+
+Without `VITE_API_BASE_URL`, the frontend falls back to `http://127.0.0.1:8000`,
+which only works on your machine during local development.
