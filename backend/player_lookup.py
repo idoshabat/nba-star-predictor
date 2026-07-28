@@ -48,7 +48,7 @@ def search_active_players(query: str, limit: int = 10) -> list[dict]:
 
 
 def player_season_stats(player_id: int, season_mode: SeasonMode = "rookie") -> dict:
-    career = playercareerstats.PlayerCareerStats(player_id=player_id)
+    career = playercareerstats.PlayerCareerStats(player_id=player_id, timeout=10)
     df = career.get_data_frames()[0]
 
     if df.empty:

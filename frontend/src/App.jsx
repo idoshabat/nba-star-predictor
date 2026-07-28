@@ -242,6 +242,15 @@ function App() {
     })
   }
 
+  async function readApiError(response, fallbackMessage) {
+    try {
+      const data = await response.json()
+      return data.detail ?? fallbackMessage
+    } catch {
+      return fallbackMessage
+    }
+  }
+
   async function loadExamplePlayer(example, mode = seasonMode) {
     setStatus('loading')
     setError('')
@@ -254,18 +263,18 @@ function App() {
       )
 
       if (!response.ok) {
-        throw new Error('Demo prediction failed')
+        throw new Error(await readApiError(response, 'Demo prediction failed'))
       }
 
       const data = await response.json()
       setFormData(data.stats)
       setPrediction(data)
       setStatus('idle')
-    } catch {
+    } catch (caughtError) {
       setFormData(example.stats)
       setPrediction(null)
       setStatus('idle')
-      setError('Could not load that demo player from NBA API.')
+      setError(caughtError.message)
     }
   }
 
@@ -309,7 +318,7 @@ function App() {
       )
 
       if (!response.ok) {
-        throw new Error('Player prediction failed')
+        throw new Error(await readApiError(response, 'Player prediction failed'))
       }
 
       const data = await response.json()
@@ -318,9 +327,9 @@ function App() {
       setStatus('idle')
       setPlayerResults([])
       setPlayerQuery(player.name)
-    } catch {
+    } catch (caughtError) {
       setStatus('idle')
-      setError('Could not load that player from NBA API.')
+      setError(caughtError.message)
     }
   }
 
@@ -334,15 +343,15 @@ function App() {
       )
 
       if (!response.ok) {
-        throw new Error('Rookie ranking failed')
+        throw new Error(await readApiError(response, 'Rookie ranking failed'))
       }
 
       const data = await response.json()
       setRookieRankings(data)
       setRookieRankingStatus('idle')
-    } catch {
+    } catch (caughtError) {
       setRookieRankingStatus('idle')
-      setError('Could not load rookie rankings from NBA API.')
+      setError(caughtError.message)
     }
   }
 
@@ -391,16 +400,16 @@ function App() {
       })
 
       if (!response.ok) {
-        throw new Error('Prediction request failed')
+        throw new Error(await readApiError(response, 'Prediction request failed'))
       }
 
       const data = await response.json()
       setPrediction(data)
       setStatus('idle')
       scrollToResultPanel()
-    } catch {
+    } catch (caughtError) {
       setStatus('idle')
-      setError('Prediction failed. Make sure the FastAPI backend is running.')
+      setError(caughtError.message)
       scrollToResultPanel()
     }
   }

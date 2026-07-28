@@ -39,7 +39,7 @@ allowed_origins.extend(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=r"http://(127\.0\.0\.1|localhost):517\d",
+    allow_origin_regex=r"^(http://(127\.0\.0\.1|localhost):517\d|https://.*\.vercel\.app)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -83,6 +83,11 @@ def predict_player(
         )
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail="NBA stats API is temporarily unavailable. Please try again in a moment.",
+        ) from error
 
 
 @app.get("/rookies/rankings", response_model=list[RookieRankingItem])
@@ -100,6 +105,11 @@ def rank_rookies(
         )
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail="NBA stats API is temporarily unavailable. Please try again in a moment.",
+        ) from error
 
 
 @app.post("/predict", response_model=PredictionResponse)

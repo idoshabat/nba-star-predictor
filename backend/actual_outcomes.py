@@ -48,7 +48,7 @@ def actual_all_star_for_player(player_id: int) -> bool | None:
 @lru_cache(maxsize=2048)
 def all_star_seasons_for_player(player_id: int) -> tuple[str, ...]:
     try:
-        awards = playerawards.PlayerAwards(player_id=player_id).get_data_frames()[0]
+        awards = playerawards.PlayerAwards(player_id=player_id, timeout=10).get_data_frames()[0]
     except Exception:
         return ()
 
