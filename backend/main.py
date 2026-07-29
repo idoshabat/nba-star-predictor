@@ -1,4 +1,5 @@
 import os
+from functools import lru_cache
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
@@ -45,15 +46,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-predictor = AllStarPredictor()
+@lru_cache(maxsize=1)
+def get_predictor() -> AllStarPredictor:
+    return AllStarPredictor()
 
 
 @app.get("/health")
 def health() -> dict:
     return {
         "status": "ok",
-        "model_name": predictor.model_name,
-        "threshold": predictor.threshold,
+        "model_loaded": bool(get_predictor.cache_info().currsize),
     }
 
 
@@ -76,6 +78,7 @@ def predict_player(
     season_mode: Literal["rookie", "latest"] = Query(default="rookie"),
 ) -> dict:
     try:
+        predictor = get_predictor()
         return predict_active_player(
             player_id=player_id,
             predictor=predictor,
@@ -97,6 +100,7 @@ def rank_rookies(
     min_games: int = Query(default=20, ge=1, le=82),
 ) -> list[dict]:
     try:
+        predictor = get_predictor()
         return rookie_rankings(
             predictor=predictor,
             season=season,
@@ -114,4 +118,5 @@ def rank_rookies(
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(player_stats: PlayerStats) -> dict:
+    predictor = get_predictor()
     return predictor.predict(player_stats.model_dump())
